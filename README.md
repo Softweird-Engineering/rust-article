@@ -18,9 +18,9 @@
 
 [Вікіпедія](https://en.wikipedia.org/wiki/Rust_(programming_language)) нам каже, що:
 
-```
+`
 Rust is a multi-paradigm, high-level, general-purpose programming language designed for performance and safety, especially safe concurrency. Rust is syntactically similar to C++, but can guarantee memory safety by using a borrow checker to validate references. Rust achieves memory safety without garbage collection, and reference counting is optional.
-```
+`
 
 В загальному це хороше визначення, хоча, звичайно, повністю не розкариває суті Rust-а. Єдине із чим я не згодний, то це слова про схожість із синтаксисом С++. На мою думку це не так. Я залишу тут статтю на Habr ([Так ли токсичен синтаксис Rust?](https://habr.com/ru/post/532660/)) із аналізом синтаксису Rust. Далі я його обговорювати не буду, оскільки це справа смаку. Особисто мені він дуже подобається.
 
