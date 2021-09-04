@@ -1,5 +1,5 @@
 
-Хто я? Миронюк Павло Ярославович. Software Developer. Люблю Rust, знаю JS, можу писати на Java. Сьогодні розкажу вам чому я люблю Rust і вважаю його найкращою мовою для backend розробки і не тільки.
+Хто я? Миронюк Павло Ярославович. Software Developer. Люблю Rust, знаю JS, можу писати на Java. Використовую Arch та Vim. Сьогодні розкажу вам чому я люблю Rust і вважаю його найкращою мовою для backend розробки і не тільки.
 
 Я не буду розказуваити детально де використовується Rust. Якщо це вас дуже сильно цікавить, то подивіться на цю цікаву статистику: [Rust Programming - The State of Developer Ecosystem in 2021 Infographic](https://www.jetbrains.com/lp/devecosystem-2021/rust/).
 
