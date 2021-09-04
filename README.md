@@ -239,6 +239,17 @@ None
 
 ## Як вчити Rust? Із чого почати?
 
+Я раджу починати із офіційної книги [The Rust Programming Language](https://doc.rust-lang.org/book/). У ній детально розписано як все працює в Rust.
+
+Далі, думаю, ви вже самі знатимете, що хочете вивчати далі, але дуже раджу звернути увагу на наступні матеріали:
+
+* [Ergonomic error handling with Rust](https://dev.to/senyeezus/ergonomic-error-handling-with-rust-13bj)
+* [rust-cookbook](https://rust-lang-nursery.github.io/rust-cookbook/about.html). Якщо коротко, то в цій книжці знаходяться best practice по частими задачам із якими ми стикаємося у повсякденному житті: Time & Date, Databases, Command Line, Network, etc.
+* [idiomatic-rust](https://github.com/mre/idiomatic-rust). В цьому репозиторієві зібрані патерни, характерні для раста, api guidelines, та інші посилання на класні навчальні матеріали по Rust. Тут ви точно знайдете щось, що ви не знаєте про Rust.
+* [Rust by Example](https://doc.rust-lang.org/rust-by-example/) - is a collection of runnable examples that illustrate various Rust concepts and standard libraries.
+* [Learn Rust With Entirely Too Many Linked Lists](https://rust-unofficial.github.io/too-many-lists/) - детально розбирається будова структур даних, циклічних структур та інші теми, які ставлять новачків у ступор.
+* Якщо вам ще мало, то ось тут точно для вас вистачить матеріалу із головою: [rust-learning](https://github.com/ctjhoa/rust-learning).
+
 ## Післямова
 
 У цій статті я розказав, чому вважаю Rust дуже класною мп. Якщо вам сподобалася ця стаття, то ви можете:
