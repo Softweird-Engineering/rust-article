@@ -238,10 +238,13 @@ fn init_app() {
 Як би ми це робили у більшості мов:
 
 ```Rust
+let mut config_data;
 if config.is_err() {
     // handle config error. load default config
+    eprintln!("{:?}", error); // log errror
+    config_data = Config::default() // load default config
 }
-let config_data = config.unwrap(); // get actual config data from Result
+config_data = config.unwrap(); // get actual config data from Result
 ```
 
 Але із pattern matching ми можемо зробити набагато лаконічніше та зручніше:
@@ -269,7 +272,7 @@ if let Some(intersection) = triangle.check_intersection(ray) {
 }
 ```
 
-На прикладі вище блок `if` виконається тільки якщо `check_intersection` повернуло `Option::Some` і відразу розпакує його. Тому всередині `if` ми матимето готове значення `intersection`.
+На прикладі вище блок `if` виконається тільки якщо `check_intersection` повернуло `Option::Some` і відразу розпакує його. Тому всередині `if` ми матимемо готове значення `intersection`.
 
 Також pattern matching можна використовувати при описі параметрів функції або при деструктивному присвоєнні (like in JS):
 
@@ -310,7 +313,7 @@ if let Some(user) = user_repository.find_by_usename(creds.get_username()) {
     // report an error
 }
 ```
-* **Scalar types**. Мені дуже подобається, як описані скалярні типи в Rust: `u8, u16, u32, u64, u128` (думаю не треба пояснювати, що цифра біля букви - це кількість бітів) - це все беззнакові цілі числа (unsigned). `i8, i16, ...` - знаковмі цілі. `f8, f16, ...` - дробові числа (із плавачою точкою). Мені це здаєтья шикарним, простим та лаконічним.
+* **Scalar types**. Мені дуже подобається, як описані скалярні типи в Rust: `u8, u16, u32, u64, u128` (думаю не треба пояснювати, що цифра біля букви - це кількість бітів) - це все беззнакові цілі числа (unsigned). `i8, i16, ...` - знакові цілі. `f8, f16, ...` - дробові числа (із плавачою точкою). Мені це здаєтья шикарним, простим та лаконічним.
 * **Макроси**. Ну цей прикол зрозуміють ті, хто хоч трохи шарить за метапрограмування. Тут я це пояснювати не буду, просто знайте, що в Rust цей інструмент присутній та дуже потужний. `println!`, `vec!`, `dbg!` - одні із найпопулярніших стандартних макросів у Rust.
 
 ## Мінуси Rust
