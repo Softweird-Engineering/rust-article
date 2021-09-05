@@ -210,23 +210,81 @@ error: aborting due to previous error
 Зараз буде трохи складно та прикольно. Ні в одній із популярних мов програмування не має такої штуки як pattern matching. У останніх версіях Java їх починають додавати потроху, але це є просто продвинутий `instanse of`. Єдина мова, в якій я бачив подібний механізм, то це [SML](https://en.wikipedia.org/wiki/Standard_ML). Я не буду вдаватися в теорію що це таке. Покажу усе на прикладах.
 
 В нас є enum `Result`, який я згадував вище:
+
 ```Rust
 enum Result<T, E> {
    Ok(T),
    Err(E),
 }
 ```
+
 Та функція, яка завантажує конфіг із файлу та повертає `Result`:
+
 ```Rust
 // Config and ConfigError are custom types
 fn load_config(filepath: &Path) -> Result<Config, ConfigError>;
 ```
+
 Тепер її використання:
+
 ```Rust
 fn init_app() {
     let config = load_config(Path::new("config.json"));
+    // config: Result<Config, ConfigError>
+    // question: how to handle it?
 }
 ```
+
+Як би ми це робили у більшості мов:
+
+```Rust
+if config.is_err() {
+    // handle config error. load default config
+}
+let config_data = config.unwrap(); // get actual config data from Result
+```
+
+Але із pattern matching ми можемо зробити набагато лаконічніше та зручніше:
+
+```Rust
+let config = match load_config(Path::new("config.json")) {
+    Ok(c) => c,
+    Err(error) => {
+        eprintln!("{:?}", error); // log errror
+        Config::default() // load default config
+    },
+};
+```
+
+На прикладі вище ми використали ключове слово `match`. Якщо результатом функції `load_config` буде не помилка, то виконається вітка `Ok(c) => c,` (якщо вітка складається тільки із одного виразу, то фігурні дужки можна не писати). А якщо результатом буде помилка, то виконається вітка `Err(error) => {...},`. Це є дуже зручно. `match` працює для будь яких єнамів, примітивних типів, власних типів і так далі. Також варто зауважити, що блок коду із `match` теж повертає значення. На прикладі вище ми його присвоїли у змінну `config`. Це є зручно, оскільки після його виконання у нас `config` матиме завжди тип `Config`.
+
+Тепер інший приклад патернів: ітератори. Припустимо в нас є ітератор і нам потрібно зробити  щось із його кожним елементом. 
+
+Також pattern matching можна викорстовувати в `if`:
+
+```Rust
+// check_intersection returns Option<Intersection>
+if let Some(intersection) = triangle.check_intersection(ray) {
+    // intersection has type Intersection
+}
+```
+
+На прикладі вище блок `if` виконається тільки якщо `check_intersection` повернуло `Option::Some` і відразу розпакує його. Тому всередині `if` ми матимето готове значення `intersection`.
+
+Також pattern matching можна використовувати при описі параметрів функції або при деструктивному присвоєнні (like in JS):
+
+```Rust
+fn add_vertices(Vertex { x: x1, y: y1, z: z1 }: &Vertex, v2: &Vertex) -> Vertex {
+    let Vertex { x: x2, y: y2, z: z2 } = v2;
+    Vertex {
+        x: x1 + x2,
+        y: y1 + y2,
+        z: z1 + z2
+    }
+}
+```
+
+В загальному за допомогою pattern matching ми можемо дуже зручно контролювати поведнку вашої програми та робити це більш гручко та просто. Вище я навів декілька дуже примітивних випадків його використанні. Насправді в Rust він набагато потужніжий, що дає нам великі можливості.
 
 ### Деякі інші плюшки
 
@@ -242,7 +300,9 @@ if (user.is_some()) {
     // report an error
 }
 ```
+
 Хоча в ідеалі цей приклад можна переписати використовуючи pattern matching (що буде, на мою думку, краще):
+
 ```Rust
 if let Some(user) = user_repository.find_by_usename(creds.get_username()) {
     // user has a type User. Now we can check password
@@ -255,7 +315,13 @@ if let Some(user) = user_repository.find_by_usename(creds.get_username()) {
 
 ## Мінуси Rust
 
-None
+* **References counting**. Вище я писав, що в одного об'єкта може бути тільки один власник. Очевидно, що не у всіх ситуаціях ми можемо дотримуватися цього правила. Якщо ми реалізовуємо якусь графову структуру, то там не обійтися без декількох власників. В таких випадках ми використовуємо [`Rc<T>`](https://doc.rust-lang.org/std/rc/struct.Rc.html), який дозволяє нам отримати багато read-only власників на значення. Якщо нам потрібна змога модифіковувати значення, то тоді [`RefCell<T>`](https://doc.rust-lang.org/std/cell/struct.RefCell.html). Пам'ять видалиться тоді, коли усі власники вийдуть за межі свого контексту. Тут є певна небезпека, оскільки, маючи циклічну залежність, у нас завжди будуть власники на пам'ять і вона ніколи не видалиться. Це той випадок, коли ми можемо штучно створити memory leak. Для циклічних залежностей використовують [`Rc`](https://doc.rust-lang.org/std/rc/struct.Rc.html) та [`Weak`](https://doc.rust-lang.org/std/rc/struct.Weak.html) (останнє це є слабка силка). В загальному я б не назвав це мінусом. Це просто додаткова невелика складність, яка нам потрібна.
+* **Lifetimes**. Я вище писав, що коли власник виходить за межі свого контексту, то значення видаляється. Бувають випадки, що нам потрібно щоб пілся цього значення не видалялося, а залишилося і всі створені силки були валідні. В таких випадках ми можемо конкретно вказати на скільки довго ця пам'ять має жити (звідси і назва: lifetime). Якщо ви не знаєте, як вони працюють, то код із lifetimes буде для вас трохи незрозумілим. Ось простий приклад:
+```Rust
+fn f<'a>(s: &'a str, t: &'a str) -> &'a str {
+    if s.len() > 5 { s } else { t }
+}
+```
 
 ## Як вчити Rust? Із чого почати?
 
