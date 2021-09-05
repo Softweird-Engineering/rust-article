@@ -59,7 +59,7 @@ fn debug(msg: String) {
 }
 
 fn main() {
-    let name = "Pavlo".to_owned();
+    let name = "Pavlo".to_owned(); // don't mind what is "to_owned()"
     println!("Author: {}", name); // ok
     debug(name);
     println!("Author: {}", name); // error. Memory of name already deleted
@@ -87,7 +87,7 @@ fn main() {
 
 Примітка. Якщо ви працюєте із рядками, то краще використовувати `&str`.
 
-Звичайна посилання (`&`) є імутабельна (immutable). Тобто на прикладі вище ми не можемо змінити значення `msg`. Щоб ми могли його змінити, треба використовувати мутабельні силки (mutable references `&mut`). Приклад:
+Звичайне посилання (`&`) є імутабельним (immutable). Тобто на прикладі вище ми не можемо змінити значення `msg`. Щоб ми могли його змінити, треба використовувати мутабельні силки (mutable references `&mut`). Приклад:
 
 ```Rust
 fn debug(msg: &mut String) {
@@ -107,10 +107,9 @@ fn main() {
 
 ### No `null`
 
-
 Да, в Rust не має `null`. Ви ніяк не зробите "заглушку". Якщо вам не потрібно відразу ініціалізовувати значення, наприклад, рядка, то у вас два варіанти:
 
-1. Просто написати `let mut msg = "";`
+1. Просто написати `let mut msg = "";` (тобто присвоїти якесь початкове, "дефолтне" значення)
 2. Використовувати [`Option`](https://doc.rust-lang.org/std/option/). Приклад:
 ```Rust
 let mut msg = Option::None;
@@ -120,7 +119,7 @@ msg = Option::Some("some text");
 
 Якщо у вас із функції не завжди вертається об'єкт, то замість того, щоб вертати `null`, найкращим способом буде використвоувати `Option`.
 
-Якщо ви не впевнені, що відсутність `null`, це дуже і дуже класно, то почитайте [The billion dollar mistake](https://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare/).
+Якщо ви не впевнені, що відсутність `null`, це дуже і дуже класно, то почитайте [The billion dollar mistake](https://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare/). Також раджу прочитати статтю із блогу одного чувака: [Why null sucks, even if it's checked](https://ihatereality.space/01-why-null-sucks/).
 
 Із свого досвіду можну сказати, що відсутність `null` дуже сильно допомагає.
 
@@ -170,7 +169,7 @@ fn sum<T: Add + Add<Output = T>>(a: T, b: T) -> T {
 
 ### Compiler
 
-Вище я вже розповів, який компілятор Rust-а класний, як багато він пеервіряє і так далі. Тут я хочу показати приклад помилоки компіляції. Візьмемо функцію `sum` із прикладу вище та опишемо дженерік неправильно:
+Вище я вже розповів, який компілятор Rust-а класний, як багато він первіряє і так далі. Тут я хочу показати приклад помилоки компіляції. Візьмемо функцію `sum` із прикладу вище та опишемо дженерік неправильно:
 ```Rust
 fn sum<T: Add>(a: T, b: T) -> T {
     a + b
@@ -198,15 +197,36 @@ help: consider further restricting this bound
 error: aborting due to previous error
 ```
 
-Що нам тут сказано:
-1. Причина та місце помилки: `mismatched types`.
+Нам тут сказано:
+1. Причина та місце помилки: `mismatched types`, `src/main.rs:4:5`.
 2. Пояснення чому саме ця помилка виникла і чому компілятор очікує саме такі типи: `this type parameter  - expected `T` because of return type`, `expected type parameter `T`, found associated type`.
 3. Нам показаний код помилки: `error[E0308]`. Це означає, що ми можемо перейти на сторінку [https://doc.rust-lang.org/stable/error-index.html#E0308](https://doc.rust-lang.org/stable/error-index.html#E0308), де буде описано детально ця помилка, її додатковий приклад та можливі шляхи вирішення.
 4. Нам запропонований варіант її вирішення (який є правильним): `<T: Add + Add<Output = T>>`.
 
 Я ще не бачив ніякого компілятора, який так детально описував би помилку та давав так багато інформації про неї.
 
-### Patterns
+### Pattern matching
+
+Зараз буде трохи складно та прикольно. Ні в одній із популярних мов програмування не має такої штуки як pattern matching. У останніх версіях Java їх починають додавати потроху, але це є просто продвинутий `instanse of`. Єдина мова, в якій я бачив подібний механізм, то це [SML](https://en.wikipedia.org/wiki/Standard_ML). Я не буду вдаватися в теорію що це таке. Покажу усе на прикладах.
+
+В нас є enum `Result`, який я згадував вище:
+```Rust
+enum Result<T, E> {
+   Ok(T),
+   Err(E),
+}
+```
+Та функція, яка завантажує конфіг із файлу та повертає `Result`:
+```Rust
+// Config and ConfigError are custom types
+fn load_config(filepath: &Path) -> Result<Config, ConfigError>;
+```
+Тепер її використання:
+```Rust
+fn init_app() {
+    let config = load_config(Path::new("config.json"));
+}
+```
 
 ### Деякі інші плюшки
 
@@ -222,7 +242,7 @@ if (user.is_some()) {
     // report an error
 }
 ```
-Хоча в ідеалі цей приклад можна переписати використовуючи патерни (що буде, на мою думку, краще):
+Хоча в ідеалі цей приклад можна переписати використовуючи pattern matching (що буде, на мою думку, краще):
 ```Rust
 if let Some(user) = user_repository.find_by_usename(creds.get_username()) {
     // user has a type User. Now we can check password
@@ -230,7 +250,7 @@ if let Some(user) = user_repository.find_by_usename(creds.get_username()) {
     // report an error
 }
 ```
-* **Scalar types**. Мені дуже подобається, як описані скалярні типи в Rust: u8, u16, u32, u64, u128 (думаю не треба пояснювати, що цифра біля букви - це кількість бітів) - це все беззнакові цілі числа (unsigned). i8, i16, ... - знаковмі цілі. f8, f16, ... - дробові числа (із плавачою точкою). Мені це здаєтья шикарним, простим та лаконічним.
+* **Scalar types**. Мені дуже подобається, як описані скалярні типи в Rust: `u8, u16, u32, u64, u128` (думаю не треба пояснювати, що цифра біля букви - це кількість бітів) - це все беззнакові цілі числа (unsigned). `i8, i16, ...` - знаковмі цілі. `f8, f16, ...` - дробові числа (із плавачою точкою). Мені це здаєтья шикарним, простим та лаконічним.
 * **Макроси**. Ну цей прикол зрозуміють ті, хто хоч трохи шарить за метапрограмування. Тут я це пояснювати не буду, просто знайте, що в Rust цей інструмент присутній та дуже потужний. `println!`, `vec!`, `dbg!` - одні із найпопулярніших стандартних макросів у Rust.
 
 ## Мінуси Rust
